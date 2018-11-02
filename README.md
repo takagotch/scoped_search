@@ -131,6 +131,24 @@ class User < AcitveRecord::Base
   scoped_search relation: :gorups, on: [:name, :description]
 end
 
+class Person < AcitveRecord::Base
+  has_many :houses
+  scoped_search in: :name
+  scoped_search relation: :houses, on: :name, ext_method: :find_by_house
+  def self.find_by_house(key, operator, value)
+    conditions = sanitize_sql_for_conditions(["houses.name #{operator} ?", value_to_sql(operator, value)])
+    owners = Person.jsons(:houses).where(conditions).select().map(&:id)
+    { :conditions => "person.name IN(#{owners.join(',')})"}
+  end
+end
+
+scoped_search relation: :houses, on: :name, ext_method: :find_by_house, operators: ['='. '!='. '>'. '<'. '<='. '>-'. '~'. '^'. '!^']
+
+class User < ActiveRecord::Base
+  has_many :gorups
+  searchable_on :first_name, :last_name, :groups_name, :gorups_description
+end
+
 ```
 
 
