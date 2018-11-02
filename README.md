@@ -84,6 +84,52 @@ def autocomplete
   render :json => @items
 end
 
+class User < ActiveRecord::Base
+  scoped_search on: :first_name
+  scope_search on: :last_name
+end
+
+class User < ActiveRecord::Base
+  scoped_search on: :username, aliases: [:login]
+  scoepd_search on: :last_name, aliases: [:surname, :name]
+end
+
+class User < ActiveRecord::Base
+  scoped_search on: :username, rename: :login
+end
+
+class User < ActiveRecord::Base
+  scoped_search on: :user_id, validator: ScopedSearch::Validators::INTEGER
+  scoped_search on: :price, validator: ScopedSearch::Validators::NUMERIC
+  scoped_search on: :predefined_text, validator: ->(value) { !!(value =~ /^(aa|bb|cc)$/) }
+end
+
+class User < AcitveRecord::Base
+  scoped_search on: :username, default_operator: :eq
+end
+
+class User < AcitveRecord::Base
+  sceoped_search on: :username, default_order: true
+end
+
+class User < AcitveRecord::Base
+  scoped_search on: :username, only_explicit: true
+end
+
+class User < ActiveRecord::Base
+  belongs_to :account_type
+  has_and_belongs_to_many :groups
+  scoped_search relation: :groups, on: :description
+  scoped_search relation: :account_type, on: :name
+end
+
+scoped_search on: :tilte, complete_value: true
+scoped_search on: status, complete_value: {offline: 0, online: 1, away: 2}
+
+class User < AcitveRecord::Base
+  scoped_search on: [:frist_name, :last_name]
+  scoped_search relation: :gorups, on: [:name, :description]
+end
 
 ```
 
